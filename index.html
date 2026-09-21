@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1410">
+  <title>Cartas MyL</title>
+  <meta name="description" content="Buscador de cartas de Mitos y Leyendas Segunda Era: Espada Sagrada, Helénica, Hijos de Daana, Dominios de Ra y Guerrero Jaguar.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icono-192.png">
+  <link rel="apple-touch-icon" href="assets/icono-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Cabecera con buscador -->
+  <header class="cabecera">
+    <div class="buscador">
+      <svg class="icono-lupa" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="buscar" type="search" placeholder="Nombre, texto o código (ej: GJ 90)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button id="limpiar" class="btn-icono oculto" aria-label="Limpiar búsqueda">✕</button>
+    </div>
+    <button id="btn-filtros" class="btn-filtros" aria-expanded="false">
+      Filtros <span id="n-filtros" class="badge oculto">0</span>
+    </button>
+  </header>
+
+  <!-- Panel de filtros (se despliega) -->
+  <section id="panel-filtros" class="panel-filtros oculto">
+    <div class="grupo">
+      <div class="grupo-titulo">Edición</div>
+      <div class="chips" data-filtro="e">
+        <button class="chip" data-v="ES">Espada Sagrada</button>
+        <button class="chip" data-v="HL">Helénica</button>
+        <button class="chip" data-v="HD">Hijos de Daana</button>
+        <button class="chip" data-v="DR">Dominios de Ra</button>
+        <button class="chip" data-v="GJ">Guerrero Jaguar</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Tipo</div>
+      <div class="chips" data-filtro="t">
+        <button class="chip" data-v="Aliado">Aliado</button>
+        <button class="chip" data-v="Talismán">Talismán</button>
+        <button class="chip" data-v="Arma">Arma</button>
+        <button class="chip" data-v="Tótem">Tótem</button>
+        <button class="chip" data-v="Oro">Oro</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Raza (aliados)</div>
+      <div class="chips" data-filtro="r">
+        <button class="chip" data-v="Caballero">Caballero</button>
+        <button class="chip" data-v="Dragón">Dragón</button>
+        <button class="chip" data-v="Faerie">Faerie</button>
+        <button class="chip" data-v="Héroe">Héroe</button>
+        <button class="chip" data-v="Olímpico">Olímpico</button>
+        <button class="chip" data-v="Titán">Titán</button>
+        <button class="chip" data-v="Defensor">Defensor</button>
+        <button class="chip" data-v="Desafiante">Desafiante</button>
+        <button class="chip" data-v="Sombra">Sombra</button>
+        <button class="chip" data-v="Eterno">Eterno</button>
+        <button class="chip" data-v="Faraón">Faraón</button>
+        <button class="chip" data-v="Sacerdote">Sacerdote</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Frecuencia</div>
+      <div class="chips" data-filtro="f">
+        <button class="chip" data-v="Real">Real</button>
+        <button class="chip" data-v="Cortesano">Cortesano</button>
+        <button class="chip" data-v="Vasallo">Vasallo</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Coste</div>
+      <div class="chips" data-filtro="c">
+        <button class="chip" data-v="0">0</button>
+        <button class="chip" data-v="1">1</button>
+        <button class="chip" data-v="2">2</button>
+        <button class="chip" data-v="3">3</button>
+        <button class="chip" data-v="4">4</button>
+        <button class="chip" data-v="5">5</button>
+        <button class="chip" data-v="6+">6+</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Habilidad contiene</div>
+      <div class="chips" data-filtro="k">
+        <button class="chip" data-v="Furia">Furia</button>
+        <button class="chip" data-v="Imbloqueable">Imbloqueable</button>
+        <button class="chip" data-v="Indestructible">Indestructible</button>
+        <button class="chip" data-v="Guardián">Guardián</button>
+        <button class="chip" data-v="Errante">Errante</button>
+        <button class="chip" data-v="Anula">Anula</button>
+        <button class="chip" data-v="Destruye">Destruye</button>
+        <button class="chip" data-v="Destierra">Destierra</button>
+        <button class="chip" data-v="bota">Bota cartas</button>
+        <button class="chip" data-v="roba">Roba</button>
+        <button class="chip" data-v="Única">Única</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <div class="grupo-titulo">Mi colección</div>
+      <div class="chips" data-filtro="col">
+        <button class="chip" data-v="tengo">Las que tengo</button>
+        <button class="chip" data-v="faltan">Las que no tengo</button>
+      </div>
+    </div>
+    <div class="grupo fila">
+      <label>Ordenar
+        <select id="orden">
+          <option value="num">Edición y número</option>
+          <option value="nom">Nombre</option>
+          <option value="c">Coste</option>
+          <option value="a">Fuerza</option>
+        </select>
+      </label>
+      <button id="quitar-filtros" class="btn-secundario">Quitar filtros</button>
+    </div>
+  </section>
+
+  <!-- Contenido de cada pestaña -->
+  <main>
+    <section id="vista-cartas" class="vista">
+      <div id="resumen" class="resumen"></div>
+      <div id="grilla" class="grilla"></div>
+      <button id="ver-mas" class="btn-secundario ver-mas oculto">Ver más</button>
+    </section>
+
+    <section id="vista-mazos" class="vista oculto">
+      <div class="fila-titulo">
+        <h2>Mazos</h2>
+        <button id="nuevo-mazo" class="btn-primario">+ Nuevo mazo</button>
+      </div>
+      <div id="lista-mazos"></div>
+    </section>
+
+    <section id="vista-coleccion" class="vista oculto">
+      <div class="fila-titulo">
+        <h2>Mi colección</h2>
+      </div>
+      <div id="stats-coleccion" class="stats"></div>
+      <p class="ayuda">Marca cuántas copias tienes de cada carta desde su ficha (botones − / +). Así puedes filtrar "las que tengo" y ver qué te falta para cada mazo.</p>
+      <div class="acciones">
+        <button id="exportar" class="btn-secundario">Respaldar (JSON)</button>
+        <label class="btn-secundario">Restaurar <input id="importar" type="file" accept="application/json" hidden></label>
+        <button id="descargar-imagenes" class="btn-secundario">Guardar imágenes sin internet</button>
+      </div>
+      <div id="progreso-imagenes" class="ayuda"></div>
+      <div id="lista-coleccion" class="grilla"></div>
+    </section>
+  </main>
+
+  <!-- Barra de pestañas -->
+  <nav class="tabs">
+    <button class="tab activa" data-vista="cartas">🃏<span>Cartas</span></button>
+    <button class="tab" data-vista="mazos">📜<span>Mazos</span></button>
+    <button class="tab" data-vista="coleccion">📦<span>Colección</span></button>
+  </nav>
+
+  <!-- Ficha de carta (modal) -->
+  <div id="modal" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-fondo"></div>
+    <div class="modal-caja">
+      <button id="cerrar-modal" class="btn-icono cerrar" aria-label="Cerrar">✕</button>
+      <div class="modal-nav">
+        <button id="ant" class="btn-icono" aria-label="Anterior">‹</button>
+        <span id="pos"></span>
+        <button id="sig" class="btn-icono" aria-label="Siguiente">›</button>
+      </div>
+      <div id="ficha"></div>
+    </div>
+  </div>
+
+  <!-- Diálogo de mazo (crear / renombrar / agregar carta) -->
+  <div id="dialogo" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-fondo"></div>
+    <div class="modal-caja pequena" id="dialogo-contenido"></div>
+  </div>
+
+  <div id="aviso" class="aviso oculto"></div>
+
+  <script src="cartas.js"></script>
+  <script src="mazos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
