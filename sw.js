@@ -2,7 +2,7 @@
    Las imágenes de cartas se guardan a medida que se ven (o todas con el botón de Colección).
    Al cambiar VERSION se vuelve a descargar la app. */
 
-const VERSION = "cartasmyl-v1";
+const VERSION = "cartasmyl-v2";
 const CACHE_IMAGENES = "myl-imagenes";
 
 const ARCHIVOS = [
@@ -11,6 +11,7 @@ const ARCHIVOS = [
   "./style.css",
   "./cartas.js",
   "./mazos.js",
+  "./armador.js",
   "./app.js",
   "./manifest.json",
   "./assets/icono-192.png",

@@ -11,7 +11,10 @@ No depende de ningún servicio: es HTML/JS puro y funciona sin internet una vez 
 - **Ficha** de cada carta con imagen grande; se pasa de carta con las flechas o deslizando.
 - **Colección**: marca cuántas copias tienes (− / +). Filtra "las que tengo" / "las que no tengo".
 - **Mazos**: vienen los dos mazos Héroe agro-control; puedes copiarlos y editarlos o crear los tuyos.
-  Cada mazo muestra cuántas cartas te faltan y cuáles ("Ver las que faltan").
+  Cada mazo muestra cuántas cartas te faltan y cuáles ("Ver las que faltan"), y su curva de coste.
+- **✨ Armar mazo**: eliges raza(s), estilo (agresivo / agro-control / equilibrado / control), copias por
+  aliado y por talismán, cantidad de oros, ediciones, si incluir armas y si usar solo cartas que tienes;
+  la app puntúa las cartas (`armador.js`) y arma las 50. Luego "Otra variante" o "Cambiar requisitos".
 - **Respaldo**: exporta/importa colección y mazos en un archivo JSON (Colección → Respaldar).
 - **Sin internet**: la app se guarda sola; las imágenes se guardan a medida que las ves, o todas
   de una vez con "Guardar imágenes sin internet" (≈80 MB).

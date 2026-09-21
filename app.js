@@ -246,8 +246,10 @@
         <button class="btn-secundario" data-compartir>Compartir lista</button>
         ${m.preset ? `<button class="btn-primario" data-copiar>Copiar a mis mazos</button>`
           : `<button class="btn-secundario" data-renombrar>Renombrar</button><button class="btn-peligro" data-borrar>Borrar</button>`}
+        ${!m.preset && m.opciones ? `<button class="btn-secundario" data-variante>🔁 Otra variante</button><button class="btn-secundario" data-requisitos>⚙ Cambiar requisitos</button>` : ""}
       </div>
-      ${html || `<p class="ayuda">Mazo vacío. Busca una carta en la pestaña Cartas y toca "+ A un mazo".</p>`}`;
+      ${curvaHTML(m)}
+      ${html || `<p class="ayuda">Mazo vacío. Busca una carta en la pestaña Cartas y toca "+ A un mazo", o usa "✨ Armar mazo".</p>`}`;
   }
   function metaLarga(c) {
     const p = [];
@@ -317,6 +319,73 @@
           });
         };
       });
+  }
+
+  // ---------- Armador automático ----------
+  const RAZAS = ["Caballero", "Dragón", "Faerie", "Héroe", "Olímpico", "Titán", "Defensor", "Desafiante", "Sombra", "Eterno", "Faraón", "Sacerdote"];
+  function formularioArmador(previas) {
+    const o = Object.assign({ razas: [], ediciones: [], estilo: "agrocontrol", copiasAliado: 3, copiasTalisman: 3, oros: 17, armas: false, soloTengo: false, nombre: "" }, previas || {});
+    const chips = (lista, sel, clave) => lista.map((v) => `<button type="button" class="chip ${sel.includes(v) ? "activo" : ""}" data-${clave}="${v}">${v}</button>`).join("");
+    const opc = (vals, sel) => vals.map(([v, t]) => `<option value="${v}" ${String(v) === String(sel) ? "selected" : ""}>${t}</option>`).join("");
+    dialogo(`<h3>Armar mazo según tus requisitos</h3>
+      <div class="campo"><div class="grupo-titulo">Raza de los aliados (una o varias; ninguna = todas)</div><div class="chips" id="a-razas">${chips(RAZAS, o.razas, "raza")}</div></div>
+      <div class="campo"><label>Estilo</label><select id="a-estilo">${opc([["agresivo", "Agresivo: pegar rápido"], ["agrocontrol", "Agro-control: pegar y responder"], ["equilibrado", "Equilibrado"], ["control", "Control: anular, destruir, aguantar"]], o.estilo)}</select></div>
+      <div class="campo"><div class="fila2">
+        <div><label>Copias por aliado</label><select id="a-copias">${opc([[1, "1 (todos distintos)"], [2, "2"], [3, "3"]], o.copiasAliado)}</select></div>
+        <div><label>Copias por talismán</label><select id="a-copias-t">${opc([[1, "1"], [2, "2"], [3, "3"]], o.copiasTalisman)}</select></div>
+      </div></div>
+      <div class="campo"><div class="fila2">
+        <div><label>Oros (de 50)</label><input type="number" id="a-oros" min="12" max="22" value="${o.oros}"></div>
+        <div><label>Nombre</label><input type="text" id="a-nombre" value="${esc(o.nombre)}" placeholder="(automático)" style="margin:0"></div>
+      </div></div>
+      <div class="campo"><div class="grupo-titulo">Ediciones (ninguna = todas)</div><div class="chips" id="a-ediciones">${Object.keys(EDICIONES).map((e) => `<button type="button" class="chip ${o.ediciones.includes(e) ? "activo" : ""}" data-ed="${e}">${EDICIONES[e]}</button>`).join("")}</div></div>
+      <label class="marcar"><input type="checkbox" id="a-tengo" ${o.soloTengo ? "checked" : ""}> Solo con cartas que tengo (según mi colección)</label>
+      <label class="marcar"><input type="checkbox" id="a-armas" ${o.armas ? "checked" : ""}> Incluir armas</label>
+      <div class="botones"><button class="btn-secundario" data-cancelar>Cancelar</button><button class="btn-primario" data-armar>Armar</button></div>`,
+      (caja) => {
+        caja.querySelectorAll("#a-razas .chip, #a-ediciones .chip").forEach((b) => b.onclick = () => b.classList.toggle("activo"));
+        caja.querySelector("[data-cancelar]").onclick = cerrarDialogo;
+        caja.querySelector("[data-armar]").onclick = () => {
+          const opciones = {
+            razas: [...caja.querySelectorAll("#a-razas .chip.activo")].map((b) => b.dataset.raza),
+            ediciones: [...caja.querySelectorAll("#a-ediciones .chip.activo")].map((b) => b.dataset.ed),
+            estilo: caja.querySelector("#a-estilo").value,
+            copiasAliado: Number(caja.querySelector("#a-copias").value),
+            copiasTalisman: Number(caja.querySelector("#a-copias-t").value),
+            copiasTotem: 3,
+            oros: Math.min(22, Math.max(12, Number(caja.querySelector("#a-oros").value) || 17)),
+            armas: caja.querySelector("#a-armas").checked,
+            soloTengo: caja.querySelector("#a-tengo").checked,
+            nombre: caja.querySelector("#a-nombre").value.trim(),
+          };
+          cerrarDialogo();
+          const m = previas && previas._mazoId ? misMazos.find((x) => x.id === previas._mazoId) : null;
+          generarMazo(opciones, m);
+        };
+      });
+  }
+  function generarMazo(opciones, existente) {
+    const r = window.armarMazo({ ...opciones, semilla: Math.floor(Math.random() * 100000) }, cartas, coleccion);
+    const nombreAuto = (opciones.razas.length ? opciones.razas.join("/") : "Mixto") + " " +
+      ({ agresivo: "agresivo", agrocontrol: "agro-control", equilibrado: "equilibrado", control: "control" }[opciones.estilo]) +
+      (opciones.copiasAliado === 1 ? " (aliados ×1)" : "");
+    let m = existente;
+    if (!m) { m = { id: nuevoId(), nombre: opciones.nombre || nombreAuto, descripcion: "", lineas: [] }; misMazos.push(m); }
+    else if (opciones.nombre) m.nombre = opciones.nombre;
+    m.lineas = r.lineas; m.descripcion = r.resumen; m.opciones = opciones;
+    guardarMazos();
+    if (vistaActual !== "mazos") irA("mazos");
+    pintarMazo(m.id); window.scrollTo(0, 0);
+    aviso(existente ? "Mazo rearmado" : "Mazo armado: revísalo y ajústalo a gusto");
+  }
+  function curvaHTML(m) {
+    const cubos = [0, 0, 0, 0, 0, 0, 0]; // 0,1,2,3,4,5,6+
+    let n = 0;
+    m.lineas.forEach((l) => { const c = cartaDeLinea(l); if (!c || c.generico || c.t === "Oro" || c.c == null) return; cubos[Math.min(6, c.c)] += l[1]; n += l[1]; });
+    if (!n) return "";
+    const max = Math.max(...cubos, 1);
+    return `<div class="curva-caja"><div class="grupo-titulo">Curva de coste (sin oros)</div><div class="curva">` +
+      cubos.map((v, i) => `<div style="height:${Math.round(100 * v / max)}%"><b>${v || ""}</b><span>${i === 6 ? "6+" : i}</span></div>`).join("") + `</div></div>`;
   }
 
   // ---------- Colección ----------
@@ -480,6 +549,7 @@
   $$(".tab").forEach((t) => t.addEventListener("click", () => irA(t.dataset.vista)));
 
   // Mazos
+  $("#armar-mazo").addEventListener("click", () => formularioArmador());
   $("#nuevo-mazo").addEventListener("click", () => pedirNombre("Nuevo mazo", "", (nombre) => {
     misMazos.push({ id: nuevoId(), nombre, descripcion: "", lineas: [] }); guardarMazos(); pintarListaMazos();
   }));
@@ -511,6 +581,8 @@
       misMazos.push(copia); guardarMazos(); pintarMazo(copia.id); aviso("Copiado a tus mazos: ahora puedes editarlo"); return;
     }
     if (e.target.closest("[data-renombrar]")) { pedirNombre("Renombrar mazo", m.nombre, (n) => { m.nombre = n; guardarMazos(); pintarMazo(m.id); }); return; }
+    if (e.target.closest("[data-variante]")) { generarMazo(m.opciones, m); return; }
+    if (e.target.closest("[data-requisitos]")) { formularioArmador({ ...m.opciones, nombre: m.nombre, _mazoId: m.id }); return; }
     if (e.target.closest("[data-borrar]")) {
       confirmar("¿Borrar el mazo \"" + m.nombre + "\"?", () => { misMazos = misMazos.filter((x) => x.id !== m.id); guardarMazos(); pintarListaMazos(); });
     }
